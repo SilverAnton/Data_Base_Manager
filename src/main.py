@@ -1,7 +1,7 @@
 from hh_api import HeadHunterApi
-from Data_Base_Table import DataBaseTable
 from utils import work_with_json
 from Data_Base_manager import DataBaseManager
+from config import config
 
 employers_param = ('employer_id integer PRIMARY KEY, name varchar, url varchar, alternate_url varchar, vacancies_url '
                    'varchar, open_vacancies integer')
@@ -11,9 +11,9 @@ vacancies_param = ('vacancy_id integer PRIMARY KEY, vacancy_name varchar, salary
 
 
 def main_foo():
-    obj_db_table = DataBaseTable()
-    obj_db_table.create_table('employers', employers_param)
-    obj_db_table.create_table('vacancies', vacancies_param)
+    obj_dbm = DataBaseManager(config())
+    obj_dbm.create_table('employers', employers_param)
+    obj_dbm.create_table('vacancies', vacancies_param)
     employer_kw = input('Введите ключевое слово для выбора работодателей')
     obj_api = HeadHunterApi()
     obj_api.add_employers(employer_kw)
@@ -22,8 +22,8 @@ def main_foo():
     obj_api.save_as_json_vacancies()
     employers = work_with_json('employers.json')
     vacancies = work_with_json('vacancies.json')
-    obj_db_table.fill_to_table(employers)
-    obj_db_table.fill_to_table(vacancies)
+    obj_dbm.fill_to_table(employers)
+    obj_dbm.fill_to_table(vacancies)
     while True:
         print('Выберете действие для работы с данными')
         select_action = input(
@@ -34,8 +34,7 @@ def main_foo():
             '5 - получить список вакансий по ключевому слову в названии вакансии\n'
             'Выход - закончить\n'
         )
-        print()
-        obj_dbm = DataBaseManager()
+
         if select_action == '1':
             for items in obj_dbm.get_companies_and_vacancies_count():
                 print(items)
@@ -52,8 +51,8 @@ def main_foo():
                     input('Введите ключевое слово для поиска названия вакансий')):
                 print(items)
         elif select_action == 'Выход':
-            obj_db_table.drop_table('vacancies')
-            obj_db_table.drop_table('employers')
+            obj_dbm.drop_table('vacancies')
+            obj_dbm.drop_table('employers')
             break
 
 
